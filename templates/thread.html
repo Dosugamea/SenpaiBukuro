@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title id="name">野獣掲示板</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<style>
+table {
+margin: auto;
+background: #eeeeee;
+width: 75%;
+height: auto;
+}
+html{
+    text-align: center;
+    background-image: url("./ba.gif");
+}
+</style>
+</head>
+<body>
+<b><font size="10px" id="page_title"></font></b>
+<br><br>
+<table border id="comments">
+    <td>
+    JavaScriptを有効にしてください
+    </td>
+</table>
+<br>
+<form method="POST" id="mc">
+    <h3><span class="common">新規コメント作成</span></h3>
+    <p style="margin: 0 0 0 2em; font-size: 0.75em;">
+        名前：<input type="text" name="user_name" id="user_name" style="width: 16em;"><br>
+        <textarea style="min-width: 40em; height: 10.0em; word-wrap: break-word;" rows="4" cols="12" name="comment" id="comment"></textarea>
+    </p>
+    <input type="submit" value="新規コメント作成" name="submit"><br>
+</form>
+<script>
+var getUrlParameter = function getUrlParameter(sParam) {
+    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+        sURLVariables = sPageURL.split('&'),
+        sParameterName,
+        i;
+
+    for (i = 0; i < sURLVariables.length; i++) {
+        sParameterName = sURLVariables[i].split('=');
+
+        if (sParameterName[0] === sParam) {
+            return sParameterName[1] === undefined ? true : sParameterName[1];
+        }
+    }
+};
+
+$(function() {
+   $('#comments').empty();
+   $('#page_title').text(getUrlParameter("title"));
+   $('#comments').append(
+            $('<tr></tr>')
+                .append($("<td></td>").text("コメント作成日時"))
+                .append($("<td></td>").text("ユーザー名"))
+                .append($("<td></td>").text("内容"))
+    );
+    var thread_id = getUrlParameter("id");
+    $.ajax({
+        url: "list_comment/"+thread_id,
+        type: 'get',
+        dataType: 'json'
+    })
+    // 検索成功時
+    .done(function(data) {
+        if (data.Message != "NotFound"){
+          $(data).each(function(i,e) {
+            $('#comments').append(
+                $('<tr></tr>')
+                    .append($("<td></td>").text(e[1]))
+                    .append($("<td></td>").text(e[2]))
+                    .append($("<td></td>").text(e[3]))
+            );
+          });
+        }else{
+          $('#comments').html("そのスレッドは見つかりませんでした...");
+        }
+    })
+    // 失敗時にダイアログ表示
+    .fail(function() {
+      window.alert('サーバーに接続できませんでした');
+    });
+});
+</script>
+<script type="text/javascript">
+    $('form').submit(function(event) {
+      var flag = confirm ( "送信してもよろしいですか？\n\n送信したくない場合は[キャンセル]ボタンを押して下さい");
+      if (flag == true){
+        event.preventDefault();
+        $.post( './make_comment/'+getUrlParameter("id"), $('form').serialize())
+            .done(function( data ) {
+                location.reload();
+            })
+      }else{
+        return false;
+      }
+      })
+</script>
+</body>
+</html>

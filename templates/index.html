@@ -1,0 +1,125 @@
+﻿<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>野獣掲示板</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<style>
+table {
+margin: auto;
+background: #eeeeee;
+width: 75%;
+height: auto;
+}
+html{
+    text-align: center;
+    background-image: url("./ba.gif");
+}
+.box{
+    width: 85%;
+    margin: auto;
+    background: #eeeeee;
+}
+</style>
+</head>
+<body>
+<b><font size="10px">野獣掲示板</font></b>
+<br><br>
+<table border id="threads">
+    <td>
+    JavaScriptを有効にしてください
+    </td>
+</table>
+<br>
+<div class="box">
+<form id="mt">
+    <br>
+    <h3><span class="common">新規スレッド作成</span></h3>
+    <p style="font-size: 0.75em;">
+        スレッド名：<input type="text" name="thread_name" id="thread_name" style="width: 16em;"><br>
+        ハンドル名：<input type="text" name="user_name" id="user_name" style="width: 16em;"><br><br>
+        <textarea style="height: 10.0em; width: 85%; word-wrap: break-word;" rows="4" cols="12" name="comment" id="comment"></textarea>
+    </p>
+    <input type="submit" value="作成する" name="submiter" style="font-size:3vw;"><br>
+</form>
+<br>
+</div>
+<br>
+<div class="box">
+<form id="mn">
+    <br>
+    <h3><span class="common">新規固定ハンドル作成</span></h3>
+    <p style="margin: 0 0 0 2em; font-size: 0.75em;">
+        名前：<input type="text" name="user_name" id="user_name" style="width: 16em;">
+    </p>
+    <br>
+    <input type="submit" value="作成する" name="submiter" style="font-size:3vw;"><br>
+</form>
+<br>
+</div>
+<script>
+$(function() {
+   $('#threads').empty();
+   $('#threads').append(
+            $('<tr></tr>')
+                .append($("<td></td>").text("スレッド名"))
+                .append($("<td></td>").text("スレ作成日時"))
+                .append($("<td></td>").text("スレ更新日時"))
+                .append($("<td></td>").text("レス数"))
+    );
+    $.ajax({
+        url: "list_thread?start=0&end=20",
+        type: 'get',
+        dataType: 'json'
+    })
+    // 検索成功時
+    .done(function(data) {
+      $(data).each(function(i,e) {
+        $('#threads').append(
+            $('<tr></tr>')
+                .append($("<td></td>").html("<a href='"+"thread.html?id="+e[0]+"&title="+e[1]+"'><b>"+e[1]+"</b></a>"))
+                .append($("<td></td>").text(e[2]))
+                .append($("<td></td>").text(e[3]))
+                .append($("<td></td>").text(e[4]))
+        );
+      });
+    })
+    // 失敗時にダイアログ表示
+    .fail(function() {
+      window.alert('サーバーに接続できませんでした');
+    });
+});
+</script>
+<script type="text/javascript">
+    $('#mt').submit(function(event) {
+      var flag = confirm ( "送信してもよろしいですか？\n\n送信したくない場合は[キャンセル]ボタンを押して下さい");
+      if (flag == true){
+        event.preventDefault();
+        $.post( './make_thread', $('#mt').serialize())
+            .done(function( data ) {
+                location.reload();
+            })
+      }else{
+        return false;
+      }
+      })
+    $('#mn').submit(function(event) {
+      var flag = confirm ( "送信してもよろしいですか？\n\n送信したくない場合は[キャンセル]ボタンを押して下さい");
+      if (flag == true){
+        event.preventDefault();
+        $.post( './make_nick', $('#mn').serialize())
+            .done(function( data ) {
+                console.log(data);
+                if (data.Message == "OK"){
+                    alert("登録しました\n固定ハンドルパスは\n"+data.Password+"です\n(再発行はできません\n必ずメモを取ってください)");
+                }else{
+                    alert("その固定ハンドルは既に存在しています");
+                }
+            })
+      }else{
+        return false;
+      }
+      })
+</script>
+</body>
+</html>

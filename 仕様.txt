@@ -1,0 +1,42 @@
+2週間後(6/14) までに プロトタイプを。
+
+データベース
+　SQLite
+
+必要なもの
+　スレ作成
+　スレ一覧
+　レス作成
+　レス一覧
+　アカウント作成(5chのコテハン等のなりすまし防止パス+ユーザー名)
+
+API
+ スレッド新規作成
+ /make_thread POST Param
+    thread_name: スレ名
+    user_name: ユーザー名 または なりすまし防止パス
+    comment: 1レス目の内容
+　スレッド一覧取得
+　/list_thread GET Param
+    start: 一覧の開始スレッドID
+    end: 一覧の最終スレッドID
+    [[スレッドID,日付,作成時刻,最終更新時刻,コメント数]]
+
+ スレッドにコメント
+ /make_comment/<thread_ID> POST Param
+    user_mame: ユーザー名 または なりすまし防止パス
+    comment: レスの内容
+    成功: {"Message":"Success"}
+    失敗: {"Message":"Failed"}
+    スレがない: {"Message":"NotFound"}
+    
+　スレッドコメント一覧取得
+ /list_comment/<thread_ID> GET Param
+    start: 一覧の開始コメントID
+    end: 一覧の最終コメントID
+    [[コメントID,投稿日時,ユーザー名,内容]]
+    なければ[]を返す
+ 
+　垢作成
+ /make_nick POST Param
+    user_name: ユーザー名
