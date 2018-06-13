@@ -25,7 +25,8 @@ def js_resp(jsdata):
     r.set_header('Access-Control-Allow-Origin','*')
     r.set_header('Server','Yajuu-Senpai')
     return r
-    
+   
+#ランダムな文字列を作成する
 def gen_password():
      alphabet = string.ascii_letters + string.digits
      password = ''.join(secrets.choice(alphabet) for i in range(5)) 
@@ -56,13 +57,15 @@ def make_thread():
     ccon = cconnect.cursor()
     ccon.execute('CREATE TABLE "comments" ( `ID` INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, `Date` TEXT NOT NULL, `Name` INTEGER NOT NULL, `Body` TEXT NOT NULL )')
     ccon.execute("INSERT INTO comments(Date,Name,Body) VALUES (?,?,?)",(dt,name,cm))
+    #結果にコミットする
     cconnect.commit()
     tconnect.commit()
-    print("OK")
     return js_resp({"Message":"OK"})
 
 @route('/list_thread',method='GET')
 def list_thread():
+    #指定した範囲のスレッド一覧を取る
+    #?page=1 等のURLパラメータと LIMIT と OFFSET を使うことをおすすめする
     st,ed = request.query.start,request.query.end
     if st == "": st = 1
     if ed == "": ed = 10
@@ -79,16 +82,17 @@ def make_comment(thread):
         dt = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
         #トリップ確認
         pschk = ncon.execute("SELECT * from nicks where Pass=?",(request.forms.user_name,)).fetchone()
-        if pschk != None:
-            name = pschk[1]
+        if pschk != None: name = pschk[1]
         else: name = request.forms.user_name
         bd = request.forms.comment
         if name != "" and bd != "" and bd != None and name != None:
+            #コメントを挿入する
             cconnect = sqlite3.connect("./comments/%s.db"%(thread))
             ccon = cconnect.cursor()
             ccon.execute("INSERT INTO comments(Date,Name,Body) VALUES (?,?,?)",(dt,name,bd))
             tcon.execute("UPDATE threads set ComCnt = ComCnt + 1 where ID = ?;",(thread,))
             tcon.execute("UPDATE threads set ComDate = ? where ID = ?;",(dt,thread))
+            #結果にコミットする
             cconnect.commit()
             tconnect.commit()
             return js_resp({"Message":"Success"})
@@ -99,6 +103,7 @@ def make_comment(thread):
 @route('/list_comment/<thread>',method='GET')
 def list_comment(thread):
     if os.path.exists("./comments/%s.db"%(thread)):
+        #範囲を指定してコメント一覧を取る 本来は(以下省略)
         st,ed = request.query.start,request.query.end
         if st == "": st = 1
         if ed == "": ed = 1000
@@ -109,9 +114,11 @@ def list_comment(thread):
         return js_resp({"Message":"NotFound"})
 @route('/make_nick',method='POST')
 def make_nick():
+    #トリップを発行する
     nm = request.forms.user_name
     ex = ncon.execute("SELECT * from nicks where Name=?",(nm,)).fetchone()
     if ex == None:
+        #パスワードが被らないようにループする(人数が増えると悲惨なことに...)
         while True:
             ps = gen_password()
             pschk = ncon.execute("SELECT * from nicks where Pass=?",(ps,)).fetchone()
@@ -136,6 +143,7 @@ def static(filename):
         return static_file(filename,root='./templates')
     else:
         return "404 NotFound ファイルが見つかりません"
+# ルートは indexに飛ばす
 @route("/",method="GET")
 def index():
     return static_file("index.html",root='./templates')

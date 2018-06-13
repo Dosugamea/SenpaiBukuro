@@ -1,0 +1,43 @@
+table {
+margin: auto;
+background: #eeeeee;
+width: 75%;
+height: auto;
+}
+html{
+    text-align: center;
+    background-image: url("../ba.gif");
+}
+.box{
+    width: 85%;
+    margin: auto;
+    background: #eeeeee;
+}
+
+.box1{
+  border: solid 8px red;
+  box-sizing: border-box;
+  text-align: center;
+  font-size: 30px;
+}
+.clover {
+  display: flex;
+  flex-wrap: wrap;
+  width: 420px;
+  margin: 20px auto;
+}
+.clover img {
+  margin: 5px;
+}
+.img1 {
+  border-radius: 50% 50% 0 50%
+}
+.img2 {
+  border-radius: 50% 50% 50% 0
+}
+.img3 {
+  border-radius: 50% 0 50% 50%
+}
+.img4 {
+  border-radius: 0 50% 50% 50%
+}

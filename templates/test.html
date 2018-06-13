@@ -1,0 +1,31 @@
+﻿
+<html>
+<head>
+<title>submitのテスト</title>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+</head>
+<body>
+<form id="mc">
+    <h3><span class="common">新規コメント作成</span></h3>
+    <p style="margin: 0 0 0 2em; font-size: 0.75em;">
+        名前：<input type="text" name="user_name" id="user_name" style="width: 16em;"><br>
+        <textarea style="min-width: 40em; height: 10.0em; word-wrap: break-word;" rows="4" cols="12" name="comment" id="comment"></textarea>
+    </p>
+    <input type="submit" value="新規コメント作成" id="post_Comment" name="submitbutton"><br>
+</form>
+<script type="text/javascript">
+    $('form').submit(function(event) {
+      var flag = confirm ( "送信してもよろしいですか？\n\n送信したくない場合は[キャンセル]ボタンを押して下さい");
+      if (flag == true){
+        event.preventDefault();
+        $.post( './make_comment/', $('form').serialize())
+            .done(function( data ) {
+                console.log( data.form);
+            })
+      }else{
+        return false;
+      }
+      })
+</script>
+</body>
+</html>
